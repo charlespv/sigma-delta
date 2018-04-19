@@ -1,0 +1,112 @@
+%ATTENTION ATTENTION : Pour toute fonction de Matlab vous avez une aide en
+%ligne accessible avec la commande : help nomdelafonction
+clear all;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% TRANSMISSION QPSK %%%%%%%%%%%%%%%%%%%%%%%%%
+
+tic
+
+%%%%%%%%%%%%%%%%%%% Variables � utiliser %%%%%%%%%%%%%%%%%%%%%
+
+nsb = 10		%Nombre de bits
+
+fb = 1e5		%Fr�quence des bits
+Tb = 1/fb		%P�riode des bits
+Eb = 1			%Energie par bit
+
+T = 2*Tb		%P�riode des symboles
+Nsymb = nsb/2   %Nombre de symbolesseq
+
+fc = 1e6		%Fr�quence de la porteuse (carrier)
+
+Ts = 1/(100*fc)	%P�riode d'�chantillonnage : d�finit le pas de simulation
+fs = 1/Ts		%Fr�quence d'�chantillonnage
+
+npb = round(Tb/Ts)		%Nombre de points par bit
+
+t = [Ts:Ts:nsb*Tb];     %Vecteur repr�sentant l'axe du temps
+
+%%%%%%%%%%%%%%%%%%%%%%%% EMISSION %%%%%%%%%%%%%%%%%%%%%%%%%
+seqbitsinit = [-1 1 1 -1 1 -1 -1 -1 1 1];
+seqbits = sqrt(Eb) .* seqbitsinit;          
+
+%-------------Demultiplexer
+path_I = seqbits(1:2:length(seqbits)-1);	%Sous-suite de bits impairs
+path_Q = seqbits(2:2:length(seqbits));		%Sous-suite de bits pairs
+
+qpsk_I=path_I(ones(2*npb,1),:);
+qpsk_I=qpsk_I(:).';
+qpsk_Q=path_Q(ones(2*npb,1),:);
+qpsk_Q=qpsk_Q(:).';
+
+
+ tc=0:Ts:(10*Tb)-Ts;%-------------Melangeurs
+ qpsk_I_m = qpsk_I .*(sqrt(2/T)*cos(2*pi*fc*tc));                      % A completer
+ qpsk_Q_m = qpsk_Q .*(sqrt(2/T)*sin(2*pi*fc*tc));
+  
+Tx=qpsk_I_m+qpsk_Q_m;%-------------Additionneurs
+
+
+%-------------Affichage
+figure
+subplot(3,1,1)
+plot(tc,qpsk_I_m)
+subplot(3,1,2)
+plot(tc,qpsk_Q_m)
+subplot(3,1,3)
+plot(tc,Tx)
+
+% A completer
+
+%%%%%%%%%%%%%%%%%%%%%%%% RECEPTION %%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Multiplieurs : la multiplication de vecteurs se fait avec l'op�rateur .*
+% pi est une variable de Matlab, sqrt est la fonction racine carr�e
+%qpskI = ;  %sortie du multiplieur du chemin I
+%qpskQ = ;  %sortie du multiplieur du chemin Q
+tc=0:Ts:(10*Tb)-Ts;
+qpskI = Tx.*(sqrt(2/T)*cos(2*pi*fc*tc));
+qpskQ = Tx.*(sqrt(2/T)*sin(2*pi*fc*tc));
+num   = [Ts 0];     %Num�rateur de l'int�grateur
+denom = [1 -1];     %D�nominateur de l'int�grateur
+intI = [];
+intQ = [];
+for m = 1:1:Nsymb
+    % Integrateurs
+    YI = filter(num,denom,qpskI((m-1)*length(t)/Nsymb+1:m*length(t)/Nsymb));
+    YQ = filter(num,denom,qpskQ((m-1)*length(t)/Nsymb+1:m*length(t)/Nsymb));
+    intI = cat(2,intI,YI);  %Sortie de l'int�grateur du chemin I
+    intQ = cat(2,intQ,YQ);  %Sortie de l'int�grateur du chemin Q
+    
+    % Echantillonneur
+    %constI(...)=
+    %constQ(...)=
+    
+    % D�tecteur (comparaison avec 0) et Multiplexeur
+    %ATTENTION les 0 ont la valeur -1 (les 1 sont des 1)
+    %resbits(...)=
+    
+end
+R_I=[];
+R_Q=[];
+ td=2000:2000:10000;
+R_I=intI(td);
+R_Q=intQ(td);
+
+
+if (resbits == seqbits)
+    fprintf(1,'ok')
+else
+    fprintf(1,'ko')
+end
+
+% AFFICHAGE : vous pouvez utiliser plot directement pour l'affichage d'une
+% courbe dans une fenetre. Sinon vous pouvez l'utiliser avec subplot pour
+% diviser la fenetre en plusieurs partie et afficher plusieurs courbes sans
+% les superposer. HELP plot ou subplot dans Matlab pour plus de details.
+
+figure
+subplot(3,1,1)
+plot(...)
+% A completer
+

@@ -1,0 +1,360 @@
+\documentclass[10pt]{article}
+\usepackage{palatino}
+\usepackage{isolatin1}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{epsf}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{subfigure}
+\usepackage{rotating}
+\usepackage{fancyheadings}
+\usepackage{psboxit}
+\usepackage{multirow}
+\usepackage{multicol}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    MARGINS     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\tiny{\@setsize\tiny{7pt}\vipt\@vipt\let\@listi\@listI}
+
+\oddsidemargin 0.1in
+\evensidemargin \oddsidemargin
+\topmargin 0.2in
+\headheight 0pt
+\headsep 0pt
+\footskip 30pt
+
+\parskip 3pt
+
+\textheight 9.3in
+\textwidth 6.1in
+%%%%%%%%%%%%%%%%%%%%%%%%%%    Lines spacing    %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \baselineskip 18pt            % distance between the baselines of 2 lines
+\setlength{\topskip}            {0.0cm} % \baselineskip for the 1st line
+\renewcommand\baselinestretch{1.26}   % ratio (desired sep) / (\baselineskip)
+
+%%%%%%%%%%%%%%%%%%%%%    Lines Justification    %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\emergencystretch}   {2.5cm} % max. stretch line
+
+%%%%%%%%%%%%%%%%%%%%%%   Additional commands    %%%%%%%%%%%%%%%%%%%%%%%%%
+%\flushbottom
+\setlength{\intextsep}          {0.0cm} %For wrapfigure
+%\PScommands
+%\bibliographystyle{IEEEbib}
+\pagestyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%   Begin Document    %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+% -------------------------------------------------------------------------
+\begin{center}
+{\Large CCN - TP1 : Transmission et réception d'un signal modulé en QPSK}\\
+\end{center}
+%-------------------------------------------------------------------------
+\section*{Avant propos}
+%-------------------------------------------------------------------------
+Ce TP fait l'objet d'un compte-rendu qui devra \^etre envoyé par email
+sous la forme d'un seul fichier au {\bf format pdf} et au
+plus tard le {\bf jeudi 06 octobre 2016 a 23h59 sur http://www-soc.lip6.fr/~hassan/ccn.php }.\\
+Le compte-rendu doit comprendre des explications pour chacune des réponses.
+Les figures do\^ivent \^etre mises dans un contexte, expliquées, commentées
+et avoir une légende.\\
+{\bf chemin des fichiers} : /users/enseig/trncomun/ccn/2016-2017/TP\_QPSK/\\
+{\bf Matlab sous linux} : /users/soft/matlab/jan03.v6.5r13/bin/matlab -nodesktop\\
+{\bf Matlab sous linux} : /users/soft/matlab/july04.v7.0\_r14/bin/matlab -nodesktop\\
+{\bf Matlab sous linux} : /users/soft/matlab/mars09.R2009a/bin/matlab -nodesktop \\
+{\bf Matlab sous linux} : /users/soft/matlab/mars09.R2009a/bin/matlab -nodesktop \\
+{\bf Matlab sous linux} :  ssh -X berlioz ou ssh -X debussy \\
+/users/soft/matlab/R2016a/bin/matlab \\
+
+%-------------------------------------------------------------------------
+\section{Emetteur QPSK} \label{emetteur}
+%-------------------------------------------------------------------------
+On veut transmettre une séquence de bits par émission radio. On se propose
+de le faire en utilisant la modulation QPSK. Pour cela on dispose de
+l'émetteur de la figure \ref{fig_emetteur}.\\
+\begin{figure}[H]
+\centering
+\input{Tx_QPSK.pstex_t}
+\caption{Emetteur d'un signal numérique modulé en QPSK.}
+\label{fig_emetteur}
+\end{figure}
+Les caractéristiques de l'émetteur sont les suivantes :
+\begin{itemize}
+\item La fréquence des bits est $f_b=\frac{1}{T_b}=100 kHz$.
+\item L'énergie par bit est $E_b$, on a : $+\sqrt{E_b}$ pour $1$ et
+$-\sqrt{E_b}$ pour $0$.
+\item La période d'un symbole est $T=\frac{2}{f_b}$ et elle est exprimée
+mathématiquement en utilisant la fonction :
+$p(t-T) =\left\{ \begin{array}{ll}
+1 & \mbox{si $0\leq t<T$}\\
+0 & \mbox{sinon}
+\end{array}\right.$
+\item La fréquence de la porteuse est $f_c = 1 MHz$ (on a toujours
+$f_c = n\,f_b$ avec $n$ entier).
+\item Pour la simulation Matlab on échantillonne le signal à $f_s = 100 MHz$
+($Ts = \frac{1}{f_s}$ est le pas de simulation).
+\end{itemize}
+{\bf Question 1 : }Faites le chronogramme des sorties des 3 premiers blocs
+de l'émetteur.\\
+{\bf Question 2 : }Calculez les expressions temporelles des signaux $s_I$ et
+$s_Q$ qui sont les sorties des 2 mélangeurs et déduisez-en l'expression
+temporelle du signal émis par l'antenne.\\
+{\bf Question 3 : }A partir de ce que vous venez de calculer montrez que cette
+modulation s'effectue sur la phase de la porteuse et donnez le symbole de chaque
+phase. On vous rappelle que :
+\begin{eqnarray}
+\sin(a)+\cos(a)=\sqrt{2}\sin(a+\frac{\pi}{4})\mbox{~~~~et~~~~}\sin(a)-\cos(a)=\sqrt{2}\sin(a-\frac{\pi}{4})\nonumber
+\end{eqnarray}
+On désire implémenter ce récepteur sous Matlab. On vous fournit le script
+{\bf txrx.m} d'une transmission QPSK. On s'intéresse dans un premier temps
+à la partie émission qui est incomplète.\\
+{\bf Question 4 : }En vous appuyant sur les calculs que vous venez de faire
+complétez la partie émission et affichez les sorties des mélangeurs (signaux $s_I$ et
+$s_Q$) et le signal émis à l'antenne.\\
+$\star$ Les 3 questions suivantes (5-6-7-8) peuvent \^etre faites en-dehors des
+heures de TP mais sont demandées dans le compte-rendu.\\
+{\bf Question 5 : }Exprimez dans le domaine fréquentiel le
+signal émis en calculant sa transformée de Fourier. On vous rappelle que :
+\begin{eqnarray}
+\cos(2\pi f\,t)\ & \Rightarrow & \ \frac{1}{2}(\delta(f)+\delta(-f))\nonumber\\
+\sin(2\pi f\,t)\ & \Rightarrow & \ \frac{j}{2}(\delta(-f)-\delta(f))\nonumber\\
+p(t-\tau) = \left\{ \begin{array}{ll}
+1 & \mbox{si $-\frac{\tau}{2}\leq t<\frac{\tau}{2}$}\\
+0 & \mbox{sinon}
+\end{array}\right. & \Rightarrow & \ P(f)=\tau\mbox{ sinc}(\tau\,f)\nonumber
+\end{eqnarray}
+({\bf NB} : Une multiplication dans le domaine temporel est une convolution dans
+le domaine fréquentiel et inversement).\\
+{\bf Question 6  : }Représentez la transformée de Fourier de chacun des 4 symboles.\\
+{\bf Question 7  : }Calculez la densité spectrale de puissance puis affichez-la.\\
+({\bf NB} : La densité spectrale de puissance  est le module au carré
+du spectre : $|X(f)|^2=X(f)\cdot X^*(f)$).\\
+{\bf Question 8  : }Comparez la DSP d'un signal modulé en QPSK et d'un signal modulé
+en Binary-PSK (cf cours).\\
+\newpage
+%-------------------------------------------------------------------------
+\section{Récepteur QPSK} \label{recepteur}
+%-------------------------------------------------------------------------
+On s'intéresse maintenant à la réception du signal que l'on vient de
+moduler. On considérera toujours que le signal recu est cohérent (pas de
+problème de phase).
+\begin{figure}[H]
+\centering
+\input{Rx_QPSK.pstex_t}
+\caption{Récepteur idéal d'un signal QPSK cohérent.}
+\label{fig_recepteur}
+\end{figure}
+{\bf Question 9 : }En considérant le récepteur de la figure \ref{fig_recepteur}
+et un canal de transmission idéal (le signal émis est le signal reçu, pas de
+problème de cohérence de phase) donnez les expressions temporelles des signaux
+à la sortie de chaque mélangeur et de chaque intégrateur. On vous rappelle que :
+\begin{eqnarray}
+\cos^2a &=& \frac{1}{2}(1 + \cos(2a))\nonumber\\
+\sin^2a &=& \frac{1}{2}(1 - \cos(2a))\nonumber\\
+\cos(a)\,\sin(a) &=& \frac{1}{2}\sin(2a)\nonumber
+\end{eqnarray}
+{\bf Question 10 : }Quel sont les r\^oles des mélangeurs et des intégrateurs ?\\
+Ce récepteur doit \^etre implémenté sous Matlab.\\
+{\bf Question 11 : } Complétez maintenant la partie réception du script (la
+partie intégration est fournie). Pour valider votre
+récepteur simulez la transmission de quelques bits et vérifiez que la séquence
+reçue est identique à celle transmise.\\
+({\bf NB} : Pour vous aidez vous pouvez comparez les signaux aux sorties des
+multiplieurs et aux sorties des intégrateurs avec les calculs que vous avez faits
+précédemment).\\
+{\bf Question 12 : }Rajoutez au script Matlab un affichage de la constellation.
+\newpage
+%-------------------------------------------------------------------------
+\section{Effet des non-idéalités sur la réception d'un signal QPSK}
+\label{non-idealites}
+%-------------------------------------------------------------------------
+On désire maintenant implémenter certaines des non-idéalités qui perturbent
+la réception du signal et qui peuvent provoquer des erreurs de détection.
+Elles peuvent \^etre extèrieures aux circuits
+de réception et d'émission ou bien provenir de l'implémentation de ceux-ci.\\
+{\bf ATTENTION} : Vous allez devoir simuler dans cette partie la transmission
+d'un grand nombre de bits. Pour cela on vous fournit le script matlab
+{\b ber.m}, sans boucle, plus rapide et donc plus adapté. Le nombre de bits à
+simuler est fixé à 1e5 et la fréquence de simulation est mise à $f_s=10MHz$.
+
+%-------------------------------------------------------------------------
+\subsection{Canal de transmission}
+%-------------------------------------------------------------------------
+Le problème principal de la transmission radio est le passage par l'air.
+Le signal n'étant plus guidé il part dans différentes directions
+et son énergie diminue suivant la distance parcourue et suivant les
+obstacles qu'il rencontre avant d'atteindre le récepteur. Un autre problème
+est la présence de signaux extérieurs perturbateurs.\\
+Un modèle simple du canal de transmission est un bruit blanc gaussien
+additionné au
+signal transmis ({\bf AWGN} : Additive White Gaussian Noise). On dispose
+de la fonction {\bf randn} de Matlab qui renvoit un nombre suivant une loi
+gaussienne (ou normale). La fonction de densité de probabilité d'une loi
+gaussienne est :
+\begin{eqnarray}
+f(x) = \frac{1}{\sqrt{2\pi}\ \sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+\label{eqn_gaus}
+\end{eqnarray}
+La fonction de densité de probabilité de la fonction randn est définie par :
+\begin{eqnarray}
+f_r(x_r) = \frac{1}{\sqrt{2\pi}}e^{-\frac{x_r^2}{2}} \label{eqn_randn}
+\end{eqnarray}
+On a $\mu = 0$ et $\sigma = 1$. On peut passer d'une distribution définie par
+l'équation (\ref{eqn_gaus}) à une distribution définie par l'équation
+(\ref{eqn_randn}) en posant :
+\begin{eqnarray}
+x = \mu+\sigma\,x_r\ \mbox{ avec $\ x_r = randn$}\label{eqn_randn2gaus}
+\end{eqnarray}
+{\bf Question 12 : }En considérant un bruit blanc comme défini par la figure
+\ref{fig_bande} déterminez une expression de l'écart type $\sigma$ en
+fonction de $N_0$ et $f_s$.\\
+({\bf NB : }La puissance d'un signal aléatoire est $\sigma^2$ et on la
+calcule également en intégrant la densité spectrale de puissance sur
+sa bande).
+\begin{figure}[H]
+\centering
+\input{AWGN_band.pstex_t}
+\caption{Densité Spectrale de Puissance du bruit blanc.}
+\label{fig_bande}
+\end{figure}
+{\bf Question 13 : }Déduisez une valeur de $\sigma$ pour un rapport
+$\frac{E_b}{N_0}$ de 6dB avec $E_b = 1$.\\
+{\bf Question 14 : }Implémentez le bruit de canal avec le $\sigma$ trouvé
+dans votre récepteur Matlab et affichez les signaux à la sortie des
+multiplieurs, des intégrateurs ainsi que la constellation.\\
+{\bf Question 15 : }Comparez les signaux obtenus avec un canal bruité à ceux 
+obtenus avec un canal idéal. Expliquez les différences et les problèmes
+engendrés par le bruit au niveau de la détection.
+
+Pour valider notre récepteur, c'est à dire pour savoir si le bruit ajouté
+nuit ou pas au fonctionnement de notre récepteur, on doit calculer le
+{\bf B}it {\bf E}rror {\bf R}ate (BER). Il exprime, comme son nom l'indique,
+le nombre de bits erronés par rapport au nombre de bits total. On peut le
+calculer de plusieurs façons et la plus simple mais la moins rapide est de
+simuler le récepteur et de comparer les bits émis aux bits reçus.\\
+Néanmoins dans le cas d'un signal modulé en QPSK corrompu par un AWGN on
+peut trouver une expression mathématique pour le BER (cf. annexe A et cours).\\
+{\bf Question 16 : }Affichez le BER à partir de l'équation donnée en annexe
+en fonction de $\frac{E_b}{N_0}$ pour des valeur de 0dB à 12dB.\\
+({\bf NB : }L'expression du BER est un rapport de puissance et donc n'est pas
+en dB. Il faut donc convertir les valeur de $\frac{E_b}{N_0}$(dB)).\\
+{\bf Question 17 : }Tracez la courbe de BER à partir de simulations et
+comparez avec la courbe théorique.
+
+%-------------------------------------------------------------------------
+\subsection{Bruit thermique}
+%-------------------------------------------------------------------------
+Le bruit thermique (d\^u à l'agitation thermique des électrons) est présent
+dans tous les transistors et toutes les résistances d'un circuit. On peut le
+modéliser sous certaines approximations par un bruit blanc gaussien. On a
+donc la m\^eme courbe de BER que celle obtenue pour le bruit du canal.
+
+%-------------------------------------------------------------------------
+\subsection{Décalage d'amplitude ("DC offset")}
+%-------------------------------------------------------------------------
+Le DC offset est une composante continue (à fréquence nulle) ajoutée au
+signal reçu. C'est un problème pour les circuits qui fonctionnent en bande de
+base car il corrompt le signal désiré et peut m\^eme les saturer.\\
+{\bf Question 18 : }Implémentez le "DC offset" dans votre récepteur avec une
+amplitude de 0,1. Affichez la constellation.\\
+{\bf Question 19 : }Faites varier l'amplitude du "DC offset" et affichez
+la constellation. Commentez.
+
+%-------------------------------------------------------------------------
+\subsection{Mauvais appariement des gains des chemins I et Q ("Quadrature Gain Mismatch")}
+%-------------------------------------------------------------------------
+Les signaux qui arrivent à l'antenne du récepteur sont extr\^ement
+faibles. Les différents filtrages peuvent également diminuer l'amplitude
+du signal, on doit donc utiliser des gains pour amplifier le signal. Le
+problème est l'appariement des gains des 2 chemins I et Q.\\
+{\bf Question 20 : }Implémentez le "Quadrature Gain Mismatch" dans votre
+récepteur avec une difference de 0,1 entre les 2 chemins. Affichez la
+constellation.\\
+{\bf Question 21 : }Faites varier la différence entre les gains et affichez
+la constellation. Commentez.
+
+%-------------------------------------------------------------------------
+\subsection{Mauvais appariement des phases des chemins I et Q ("Quadrature Phase Mismatch")}
+%-------------------------------------------------------------------------
+Les signaux $\phi_1$ et $\phi_2$ utilisés par les mélangeurs doivent \^etre
+en quadrature mais les
+imperfections des circuits qui génèrent ces signaux peuvent causer une
+quadrature imparfaite. On traduit ce problème par un mauvais appariement
+entre les phases des 2 signaux.\\
+{\bf Question 22 : }Implémentez le "Quadrature Phase Mismatch" dans votre
+récepteur avec une déviation de 10 degrés par rapport à la quadrature parfaite.
+Affichez la constellation.\\
+{\bf Question 23 : }Faites varier la déviation par rapport à la quadrature
+parfaite et affichez la constellation. Commentez.
+
+%-------------------------------------------------------------------------
+\subsection{Décalage de fréquence ("Frequency offset")}
+%-------------------------------------------------------------------------
+Pour générer les signaux $\phi_i(t)$ on utilise des circuits qui ont besoin
+de références en fréquence (oscillateurs). Ces références ont besoin d'un
+certain temps pour stabiliser leur signal. On traduit ce phénomène par une
+déviation $\Delta f$ de la fréquence. L'ordre de grandeur de $\Delta f$
+dépend du circuit utilisé pour faire la référence et de la référence à
+atteindre mais l'ordre de grandeur est donné par la relation suivante :
+$$
+\left[\frac{1}{60};\frac{10}{6}\right]=\frac{\Delta f}{f_c}
+$$
+{\bf Question 24 : }Implémentez le "Frequency offset" dans votre récepteur
+avec un décalage de $1\ 10^{-3}$. Affichez la constellation.\\
+{\bf Question 25 : }Faites varier le décalage de fréquence et
+affichez la constellation. Commentez.
+
+%-------------------------------------------------------------------------
+\newpage
+\appendix
+\label{BER_AWGN}
+%-------------------------------------------------------------------------
+\section{Calcul du BER pour un bruit blanc gaussien dans un récepteur QPSK}
+
+Nous allons considérer dans un premier temps un seul chemin (I ou Q).\\
+La probabilité d'avoir un 0 détecté à la sortie du récepteur lorsqu'un 0
+a été émis dépend de la puissance du bruit qui a été ajouté au signal.
+Considèrons la fonction de densité du bruit blanc gaussien :
+\begin{eqnarray}
+f(x) = \frac{1}{\sqrt{2\pi}\ \sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}
+\label{eqn_gauss}
+\end{eqnarray}
+On peut définir, en posant  $\sigma = \sqrt{\frac{N_0}{2}}$ et
+$\mu = -\sqrt{E_b}$, la fonction de densité de probabilité pour un 0
+($-\sqrt{E_b}$) transmis :
+\begin{eqnarray}
+f(x|0) = \frac{1}{\sqrt{\pi\,N_0}}e^{-\frac{(x+\sqrt{E_b})^2}{N_0^2}}
+\label{eqn_gauss_0}
+\end{eqnarray}
+Dans notre cas l'erreur est la détection d'un 1 à la place du 0. Donc pour
+conna\^itre la probabilité d'erreur on détermine la probabilité que x soit
+positif :
+\begin{eqnarray}
+P_{e_0}=\int_0^\infty f(x|0)\ dx = \frac{1}{\sqrt{\pi\,N_0}}\int_0^\infty e^{-\frac{(x+\sqrt{E_b})^2}{N_0^2}}dx
+\label{eqn_prob_0_1}
+\end{eqnarray}
+En posant :
+$$z=\frac{x+\sqrt{E_b}}{\sqrt{N_0}}$$ 
+On fait un changement de variable pour avoir à partir de l'équation
+(\ref{eqn_prob_0_1}) la forme suivante :
+\begin{eqnarray}
+P_{e_0}&=&\frac{1}{\sqrt{\pi}}\int_{\sqrt{\frac{E_b}{N_0}}}^\infty e^{-z^2}dz\nonumber\\
+&=&\frac{1}{2}erfc(\frac{\sqrt{E_b}}{N_0})
+\label{eqn_prob_0_1}
+\end{eqnarray}
+La fonction erfc(x) est la fonction d'erreur complémentaire {\bf qui existe
+dans Matlab}.\\
+On a donc défini la probabilité de l'erreur "1 à la place de 0" sur un des deux
+chemins du récepteur. La probabilité de l'erreur inverse est la m\^eme d\^ue
+à la symétrie des régions de décision par rapport à l'origine.\\
+On en déduit donc l'expression du BER ou la probabilité de se tromper sur un
+bit, c'est à dire sur un des 2 chemins :
+\begin{eqnarray}
+BER=\frac{1}{2}erfc(\frac{\sqrt{E_b}}{N_0})
+\label{eqn_BER}
+\end{eqnarray}
+
+\end{document}
+%---------------------------------------------------
